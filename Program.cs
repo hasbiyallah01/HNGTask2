@@ -57,6 +57,7 @@ app.UseStaticFiles();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -69,4 +70,5 @@ app.UseCors("*");
 app.MapControllers();
 
 app.Run();
+
 

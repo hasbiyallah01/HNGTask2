@@ -1,0 +1,12 @@
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\HNGTask2.exe
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\appsettings.Development.json
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\appsettings.json
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\HNGTask2.dll
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\HNGTask2.deps.json
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\HNGTask2.runtimeconfig.json
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\HNGTask2.pdb
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\LukeSkywalker.IPNetwork.dll
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\Microsoft.OpenApi.dll
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\HP\source\repos\HNGTask2\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerUI.dll
