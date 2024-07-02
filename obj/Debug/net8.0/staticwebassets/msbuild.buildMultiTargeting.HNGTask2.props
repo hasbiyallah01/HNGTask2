@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\HNGTask2.props" />
+</Project>

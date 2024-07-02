@@ -1,0 +1,6 @@
+@HNGTask2_HostAddress = http://localhost:5214
+
+GET {{HNGTask2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
