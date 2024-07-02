@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HNGTask2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eb4460c2a7a8bc7ac471f751e719bb727b5506a8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6e1ccb6613ae0fbcf15a3297ab999fbee6e6849b")]
 [assembly: System.Reflection.AssemblyProductAttribute("HNGTask2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HNGTask2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

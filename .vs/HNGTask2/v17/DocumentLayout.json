@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\HP\\source\\repos\\HNGTask2\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{E55214EE-E6A4-4E1B-9A69-12E5D40F26FD}|HNGTask2.csproj|c:\\users\\hp\\source\\repos\\hngtask2\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E55214EE-E6A4-4E1B-9A69-12E5D40F26FD}|HNGTask2.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{E55214EE-E6A4-4E1B-9A69-12E5D40F26FD}|HNGTask2.csproj|c:\\users\\hp\\source\\repos\\hngtask2\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{E55214EE-E6A4-4E1B-9A69-12E5D40F26FD}|HNGTask2.csproj|solutionrelative:dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
@@ -26,6 +30,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\HNGTask2\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\HNGTask2\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAEUAAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-02T20:29:51.804Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "Dockerfile",
               "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\HNGTask2\\Dockerfile",
               "RelativeDocumentMoniker": "Dockerfile",
@@ -38,7 +55,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "secrets.json",
               "DocumentMoniker": "C:\\Users\\HP\\AppData\\Roaming\\Microsoft\\UserSecrets\\d46902df-7a79-412d-a65e-48568cb9d4d5\\secrets.json",
               "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Roaming\\Microsoft\\UserSecrets\\d46902df-7a79-412d-a65e-48568cb9d4d5\\secrets.json",
@@ -46,12 +63,11 @@
               "RelativeToolTip": "..\\..\\..\\AppData\\Roaming\\Microsoft\\UserSecrets\\d46902df-7a79-412d-a65e-48568cb9d4d5\\secrets.json",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-07-02T20:02:45.626Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-02T20:02:45.626Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "GreetingController.cs",
               "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\HNGTask2\\Controllers\\GreetingController.cs",
               "RelativeDocumentMoniker": "Controllers\\GreetingController.cs",
