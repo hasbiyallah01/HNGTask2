@@ -3,17 +3,18 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using HNGTask2.Controllers;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Forward headers configuration for reverse proxy
-builder.Services.Configure<ForwardedHeadersOptions>(options => {
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
+
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<IpApiClient>();
 builder.Services.AddControllers();
@@ -34,3 +35,4 @@ app.UseSwaggerUI();
 app.UseFileServer();
 app.MapControllers();
 app.Run();
+
