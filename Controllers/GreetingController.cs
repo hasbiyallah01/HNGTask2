@@ -5,38 +5,39 @@ using System.Text.Json;
 namespace HNGTask2.Controllers
 {
     [ApiController]
-[Route("api/myip")]
-public class MyIpController(IpApiClient ipApiClient) : ControllerBase
-{
-    private readonly IpApiClient _ipApiClient = ipApiClient;
-
-    [HttpGet]
-    public async Task<ActionResult> Get(CancellationToken ct)
+    [Route("api/myip")]
+    public class GreetingController(IpApiClient ipApiClient) : ControllerBase
     {
-        try
+        private readonly IpApiClient _ipApiClient = ipApiClient;
+    
+        [HttpGet]
+        public async Task<ActionResult> Get(CancellationToken ct)
         {
-            var ipAddress = HttpContext.GetServerVariable("HTTP_X_FORWARDED_FOR") ?? HttpContext.Connection.RemoteIpAddress?.ToString();
-            var ipAddressWithoutPort = ipAddress?.Split(':')[0];
-
-            var ipApiResponse = await _ipApiClient.Get(ipAddressWithoutPort, ct);
-
-            var response = new
+            try
             {
-                IpAddress = ipAddressWithoutPort,
-                Country = ipApiResponse?.country,
-                Region = ipApiResponse?.regionName,
-                City = ipApiResponse?.city,
-                //District = ipApiResponse?.district,
-                //PostCode = ipApiResponse?.zip,
-                //Longitude = ipApiResponse?.lon.GetValueOrDefault(),
-                //Latitude = ipApiResponse?.lat.GetValueOrDefault(),
-            };
+                var ipAddress = HttpContext.GetServerVariable("HTTP_X_FORWARDED_FOR") ?? HttpContext.Connection.RemoteIpAddress?.ToString();
+                var ipAddressWithoutPort = ipAddress?.Split(':')[0];
+    
+                var ipApiResponse = await _ipApiClient.Get(ipAddressWithoutPort, ct);
 
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                var response = new
+                {
+                    IpAddress = ipAddressWithoutPort,
+                    Country = ipApiResponse?.country,
+                    Region = ipApiResponse?.regionName,
+                    City = ipApiResponse?.city,
+                    //District = ipApiResponse?.district,
+                    //PostCode = ipApiResponse?.zip,
+                    //Longitude = ipApiResponse?.lon.GetValueOrDefault(),
+                    //Latitude = ipApiResponse?.lat.GetValueOrDefault(),
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
     }
     public class OpenWeatherMapClient
