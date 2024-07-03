@@ -103,4 +103,3 @@ namespace HNGTask2.Controllers
         public float Temp { get; set; }
     }
 }
-
