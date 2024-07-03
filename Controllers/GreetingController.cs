@@ -1,23 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
+using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace HNGTask2.Controllers
 {
     [ApiController]
     [Route("api/myip")]
-    public class GreetingController(IpApiClient ipApiClient) : ControllerBase
+    public class GreetingController : ControllerBase
     {
-        private readonly IpApiClient _ipApiClient = ipApiClient;
-    
+        private readonly IpApiClient _ipApiClient;
+
+        public GreetingController(IpApiClient ipApiClient)
+        {
+            _ipApiClient = ipApiClient;
+        }
+
         [HttpGet]
         public async Task<ActionResult> Get(CancellationToken ct)
         {
             try
             {
-                var ipAddress = HttpContext.GetServerVariable("HTTP_X_FORWARDED_FOR") ?? HttpContext.Connection.RemoteIpAddress?.ToString();
+                var ipAddress = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.ToString();
                 var ipAddressWithoutPort = ipAddress?.Split(':')[0];
-    
+
                 var ipApiResponse = await _ipApiClient.Get(ipAddressWithoutPort, ct);
 
                 var response = new
@@ -26,10 +34,6 @@ namespace HNGTask2.Controllers
                     Country = ipApiResponse?.country,
                     Region = ipApiResponse?.regionName,
                     City = ipApiResponse?.city,
-                    //District = ipApiResponse?.district,
-                    //PostCode = ipApiResponse?.zip,
-                    //Longitude = ipApiResponse?.lon.GetValueOrDefault(),
-                    //Latitude = ipApiResponse?.lat.GetValueOrDefault(),
                 };
 
                 return Ok(response);
@@ -40,6 +44,32 @@ namespace HNGTask2.Controllers
             }
         }
     }
+
+    public class IpApiClient
+    {
+        private const string BASE_URL = "http://ip-api.com";
+        private readonly HttpClient _httpClient;
+
+        public IpApiClient(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public async Task<IpApiResponse?> Get(string? ipAddress, CancellationToken ct)
+        {
+            var route = $"{BASE_URL}/json/{ipAddress}";
+            var response = await _httpClient.GetFromJsonAsync<IpApiResponse>(route, ct);
+            return response;
+        }
+    }
+
+    public class IpApiResponse
+    {
+        public string? country { get; set; }
+        public string? regionName { get; set; }
+        public string? city { get; set; }
+    }
+
     public class OpenWeatherMapClient
     {
         private readonly HttpClient _httpClient;
@@ -72,36 +102,5 @@ namespace HNGTask2.Controllers
     {
         public float Temp { get; set; }
     }
-
-    public class IpApiClient(HttpClient httpClient)
-    {
-        private const string BASE_URL = "http://ip-api.com";
-        private readonly HttpClient _httpClient = httpClient;
-    
-        public async Task<IpApiResponse?> Get(string? ipAddress, CancellationToken ct)
-        {
-            var route = $"{BASE_URL}/json/{ipAddress}";
-            var response = await _httpClient.GetFromJsonAsync<IpApiResponse>(route, ct);
-            return response;
-        }
-    }
-
-    public sealed class IpApiResponse
-    {
-        public string? name { get; set; }
-        public string? status { get; set; }
-        public double? temperature { get; set; }
-        public string? continent { get; set; }
-        public string? country { get; set; }
-        public string? regionName { get; set; }
-        public string? city { get; set; }
-        //public string? district { get; set; }
-        //public string? zip { get; set; }
-        //public double? lat { get; set; }
-        //public double? lon { get; set; }
-        //public string? isp { get; set; }
-        public string? query { get; set; }
-    }
-
-
 }
+
