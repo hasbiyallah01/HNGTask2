@@ -4,109 +4,103 @@ using System.Text.Json;
 
 namespace HNGTask2.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class GreetingController : ControllerBase
+[Route("api/myip")]
+public class MyIpController(IpApiClient ipApiClient) : ControllerBase
+{
+    private readonly IpApiClient _ipApiClient = ipApiClient;
+
+    [HttpGet]
+    public async Task<ActionResult> Get(CancellationToken ct)
     {
-        private readonly ILogger<GreetingController> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
-
-        public GreetingController(ILogger<GreetingController> logger, IHttpClientFactory httpClientFactory)
+        try
         {
-            _logger = logger;
-            _httpClientFactory = httpClientFactory;
+            var ipAddress = HttpContext.GetServerVariable("HTTP_X_FORWARDED_FOR") ?? HttpContext.Connection.RemoteIpAddress?.ToString();
+            var ipAddressWithoutPort = ipAddress?.Split(':')[0];
+
+            var ipApiResponse = await _ipApiClient.Get(ipAddressWithoutPort, ct);
+
+            var response = new
+            {
+                IpAddress = ipAddressWithoutPort,
+                Country = ipApiResponse?.country,
+                Region = ipApiResponse?.regionName,
+                City = ipApiResponse?.city,
+                //District = ipApiResponse?.district,
+                //PostCode = ipApiResponse?.zip,
+                //Longitude = ipApiResponse?.lon.GetValueOrDefault(),
+                //Latitude = ipApiResponse?.lat.GetValueOrDefault(),
+            };
+
+            return Ok(response);
         }
-
-        [HttpGet("Greeting")]
-        public async Task<IActionResult> GetGreeting([FromQuery] string visitor_name)
+        catch (Exception ex)
         {
-            try
-            {
-                string clientIp = HttpContext.Connection.RemoteIpAddress.ToString();
-                _logger.LogInformation($"Initial client IP: {clientIp}");
-
-                if (HttpContext.Request.Headers.ContainsKey("X-Forwarded-For"))
-                {
-                    clientIp = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',').FirstOrDefault()?.Trim();
-                    _logger.LogInformation($"Client IP from X-Forwarded-For: {clientIp}");
-                }
-
-                if (IPAddress.TryParse(clientIp, out IPAddress ip))
-                {
-                    if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-                    {
-                        clientIp = ip.MapToIPv4().ToString();
-                        _logger.LogInformation($"Converted IPv6 to IPv4: {clientIp}");
-                    }
-                }
-
-                var location = await GetLocationFromIp(clientIp);
-                var temperature = await GetTemperatureFromLocation(location);
-
-                var greeting = $"Hello, {visitor_name}!, the temperature is {temperature} degrees Celsius in {location}";
-
-                var response = new
-                {
-                    client_ip = clientIp,
-                    location,
-                    greeting
-                };
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while processing the greeting request.");
-                return StatusCode(500, "An internal server error occurred.");
-            }
-        }
-
-        private async Task<string> GetLocationFromIp(string ip)
-        {
-            try
-            {
-                var httpClient = _httpClientFactory.CreateClient();
-                var response = await httpClient.GetAsync($"https://ipinfo.io/{ip}/json?token=dd7de95ab4936f");
-                response.EnsureSuccessStatusCode();
-                var content = await response.Content.ReadAsStringAsync();
-
-                var jsonDoc = JsonDocument.Parse(content);
-
-                if (jsonDoc.RootElement.TryGetProperty("city", out var cityElement))
-                {
-                    return cityElement.GetString();
-                }
-                else
-                {
-                    _logger.LogWarning("City information not found in IP geolocation response.");
-                    return "Unknown";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while retrieving the location from the IP address.");
-                throw;
-            }
-        }
-
-        private async Task<int> GetTemperatureFromLocation(string location)
-        {
-            try
-            {
-                var httpClient = _httpClientFactory.CreateClient();
-                var apiKey = "3d96a0abab4746ccbbd91853240207";
-                var response = await httpClient.GetAsync($"https://api.weatherapi.com/v1/current.json?key={apiKey}&q={location}");
-                response.EnsureSuccessStatusCode();
-                var content = await response.Content.ReadAsStringAsync();
-                var jsonDoc = JsonDocument.Parse(content);
-                var temperature = jsonDoc.RootElement.GetProperty("current").GetProperty("temp_c").GetInt32();
-                return temperature;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while retrieving the temperature from the location.");
-                throw;
-            }
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
     }
+    public class OpenWeatherMapClient
+    {
+        private readonly HttpClient _httpClient;
+        private readonly string _apiKey;
+
+        public OpenWeatherMapClient(HttpClient httpClient, IConfiguration configuration)
+        {
+            _httpClient = httpClient;
+            _apiKey = configuration["OpenWeatherMap:ApiKey"];
+        }
+
+        public async Task<WeatherResponse> GetWeatherAsync(string city, CancellationToken ct)
+        {
+            var response = await _httpClient.GetAsync(
+                $"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={_apiKey}&units=metric",
+                ct);
+
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync(ct);
+            return JsonSerializer.Deserialize<WeatherResponse>(content);
+        }
+    }
+
+    public class WeatherResponse
+    {
+        public MainInfo Main { get; set; }
+    }
+
+    public class MainInfo
+    {
+        public float Temp { get; set; }
+    }
+
+    public class IpApiClient(HttpClient httpClient)
+    {
+        private const string BASE_URL = "http://ip-api.com";
+        private readonly HttpClient _httpClient = httpClient;
+    
+        public async Task<IpApiResponse?> Get(string? ipAddress, CancellationToken ct)
+        {
+            var route = $"{BASE_URL}/json/{ipAddress}";
+            var response = await _httpClient.GetFromJsonAsync<IpApiResponse>(route, ct);
+            return response;
+        }
+    }
+
+    public sealed class IpApiResponse
+    {
+        public string? name { get; set; }
+        public string? status { get; set; }
+        public double? temperature { get; set; }
+        public string? continent { get; set; }
+        public string? country { get; set; }
+        public string? regionName { get; set; }
+        public string? city { get; set; }
+        //public string? district { get; set; }
+        //public string? zip { get; set; }
+        //public double? lat { get; set; }
+        //public double? lon { get; set; }
+        //public string? isp { get; set; }
+        public string? query { get; set; }
+    }
+
+
 }
