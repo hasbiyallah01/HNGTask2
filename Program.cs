@@ -5,77 +5,32 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Net;
+using HNGTask2.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Greeting API", Version = "v1" });
+// forward headers configuration for reverse proxy
+builder.Services.Configure<ForwardedHeadersOptions>(options => {
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 builder.Services.AddHttpClient();
-builder.Services.AddCors(cors =>
-{
-    cors.AddPolicy("HNG", pol =>
-    {
-        pol.AllowAnyOrigin() // Allows all origins
-           .AllowAnyHeader()
-           .AllowAnyMethod();
-    });
-});
+builder.Services.AddHttpClient<IpApiClient>();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient<OpenWeatherMapClient>();
 
 var app = builder.Build();
 
-var forwardedHeadersOptions = new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    ForwardLimit = 1
-};
-
-try
-{
-    var networkIp = "192.168.0.0";
-    int subnetMask = 24; 
-
-    if (IPAddress.TryParse(networkIp, out IPAddress networkIpAddress))
-    {
-        forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(networkIpAddress, subnetMask));
-    }
-    else
-    {
-        Console.WriteLine($"Invalid network IP address: {networkIp}");
-    }
-
-    app.UseForwardedHeaders(forwardedHeadersOptions);
-}
-catch (FormatException ex)
-{
-    Console.WriteLine($"Error parsing IP address: {ex.Message}");
-}
-
-app.UseStaticFiles();
-
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Greeting API v1"));
+    app.UseSwaggerUI();
 }
-else
-{
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-
-app.UseRouting();
-app.UseCors("HNG");
-
-app.UseAuthorization();
-
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseFileServer();
 app.MapControllers();
-
 app.Run();
