@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using System;
 using System.Net;
 
@@ -9,18 +10,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddHttpClient();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddCors(options =>
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSwaggerGen(c =>
 {
-    options.AddPolicy("*",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Greeting API", Version = "v1" });
+});
+builder.Services.AddHttpClient();
+builder.Services.AddCors(cors =>
+{
+    cors.AddPolicy("HNG", pol =>
+    {
+        pol.AllowAnyOrigin() // Allows all origins
+           .AllowAnyHeader()
+           .AllowAnyMethod();
+    });
 });
 
 var app = builder.Build();
@@ -28,17 +31,17 @@ var app = builder.Build();
 var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    ForwardLimit = 1 // Set the limit for how many entries in the headers are processed
+    ForwardLimit = 1
 };
 
 try
 {
-    var networkIp = "192.168.0.0"; // This is the base IP of your network (subnet)
-    int subnetMask = 24; // Based on the subnet mask 255.255.255.0
+    var networkIp = "192.168.0.0";
+    int subnetMask = 24; 
 
     if (IPAddress.TryParse(networkIp, out IPAddress networkIpAddress))
     {
-        forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(networkIpAddress, subnetMask)); // Adjust the subnet mask as needed
+        forwardedHeadersOptions.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(networkIpAddress, subnetMask));
     }
     else
     {
@@ -54,25 +57,25 @@ catch (FormatException ex)
 
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Greeting API v1"));
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 
-app.UseRouting();   
-app.UseCors("*");
+app.UseRouting();
+app.UseCors("HNG");
 
 app.UseAuthorization();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+
+app.MapControllers();
 
 app.Run();
-
-
